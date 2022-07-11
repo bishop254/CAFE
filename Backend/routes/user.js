@@ -114,6 +114,9 @@ router.post("/forgotPassword", (req, res) => {
           } else {
             console.log(info.response);
             console.log(" \n Email sent");
+            return res.status(200).json({
+              message: "Password sent to your email",
+            });
           }
         });
       }
