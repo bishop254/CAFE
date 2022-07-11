@@ -7,12 +7,37 @@ import { environment } from '../../environments/environment';
 })
 export class UserService {
   url = environment.apiURL;
+  jsonHeader = {
+    headers: new HttpHeaders().set('Content-Type', 'application/json'),
+  };
 
   constructor(private http: HttpClient) {}
 
   signup(data: any) {
-    return this.http.post(`${this.url}/user/signup`, data, {
-      headers: new HttpHeaders().set('Content-Type', 'application/json'),
-    });
+    return this.http.post(`${this.url}/user/signup`, data, this.jsonHeader);
+  }
+
+  forgotPassword(data: any) {
+    return this.http.post(
+      `${this.url}/user/forgotPassword`,
+      data,
+      this.jsonHeader
+    );
+  }
+
+  login(data: any) {
+    return this.http.post(`${this.url}/user/login`, data, this.jsonHeader);
+  }
+
+  checkToken() {
+    return this.http.get(`${this.url}/user/checkToken`);
+  }
+
+  changePassword(data: any) {
+    return this.http.post(
+      `${this.url}/user/changePassword`,
+      data,
+      this.jsonHeader
+    );
   }
 }
