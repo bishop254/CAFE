@@ -1,32 +1,35 @@
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { saveAs } from 'file-saver';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { ProductService } from 'src/app/services/product.service';
+import { BillService } from 'src/app/services/bill.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 import { GlobalConstants } from 'src/app/shared/global-constants';
 import { ConfirmationComponent } from '../dialog/confirmation/confirmation.component';
-import { ProductComponent } from '../dialog/product/product.component';
+import { ViewBillProductsComponent } from '../dialog/view-bill-products/view-bill-products.component';
 
 @Component({
-  selector: 'app-manage-product',
-  templateUrl: './manage-product.component.html',
-  styleUrls: ['./manage-product.component.scss'],
+  selector: 'app-view-bill',
+  templateUrl: './view-bill.component.html',
+  styleUrls: ['./view-bill.component.scss'],
 })
-export class ManageProductComponent implements OnInit {
+export class ViewBillComponent implements OnInit {
   displayedColumns: string[] = [
     'name',
-    'category',
-    'description',
-    'price',
-    'edit',
+    'email',
+    'contactNumber',
+    'paymentMethod',
+    'total',
+    'view',
   ];
   dataSource: any;
   responseMessage: any;
 
   constructor(
-    private productService: ProductService,
+    private billService: BillService,
     private ngxService: NgxUiLoaderService,
     private dialog: MatDialog,
     private snackBar: SnackbarService,
@@ -39,7 +42,7 @@ export class ManageProductComponent implements OnInit {
   }
 
   tableData() {
-    this.productService.getProducts().subscribe(
+    this.billService.getBills().subscribe(
       (resp: any) => {
         this.ngxService.stop();
         this.dataSource = new MatTableDataSource(resp.data);
@@ -61,53 +64,45 @@ export class ManageProductComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  handleAddAction() {
+  handleViewAction(value: any) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.data = {
-      action: 'Add',
-    };
-    dialogConfig.width = '850px';
-    const dialogRef = this.dialog.open(ProductComponent, dialogConfig);
-    this.router.events.subscribe(() => {
-      dialogRef.close();
-    });
-
-    const sub = dialogRef.componentInstance.onAddCategory.subscribe(
-      (resp: any) => {
-        this.tableData();
-      }
-    );
-  }
-
-  handleEditAction(value: any) {
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.data = {
-      action: 'Edit',
       data: value,
     };
-    dialogConfig.width = '850px';
-    const dialogRef = this.dialog.open(ProductComponent, dialogConfig);
+    dialogConfig.width = '100%';
+
+    const dialogRef = this.dialog.open(ViewBillProductsComponent, dialogConfig);
     this.router.events.subscribe(() => {
       dialogRef.close();
     });
+  }
 
-    const sub = dialogRef.componentInstance.onEditCategory.subscribe(
-      (resp: any) => {
-        this.tableData();
-      }
-    );
+  downloadReportAction(value: any) {
+    this.ngxService.start();
+    let data = {
+      name: value.name,
+      email: value.email,
+      uuid: value.uuid,
+      contactNumber: value.contactNumber,
+      paymentMethod: value.paymentMethod,
+      totalAmount: value.total,
+      productDetails: value.productDetails,
+    };
+
+    this.billService.getPDF(data).subscribe((resp) => {
+      saveAs(resp, value.uuid + '.pdf');
+      this.ngxService.stop();
+    });
   }
 
   handleDeleteAction(value: any) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.data = {
-      message: 'delete ' + value.name + ' product',
+      message: 'delete ' + value.name + ' bill',
     };
-
     const dialogRef = this.dialog.open(ConfirmationComponent, dialogConfig);
-
     const sub = dialogRef.componentInstance.onEmitStatusChange.subscribe(
-      (resp: any) => {
+      (response) => {
         this.ngxService.start();
         this.deleteProduct(value.id);
         dialogRef.close();
@@ -116,34 +111,10 @@ export class ManageProductComponent implements OnInit {
   }
 
   deleteProduct(id: any) {
-    this.productService.delete(id).subscribe(
+    this.billService.delete(id).subscribe(
       (resp: any) => {
         this.ngxService.stop();
         this.tableData();
-        this.responseMessage = resp?.message;
-        this.snackBar.openSnackBar(this.responseMessage, 'success');
-      },
-      (error) => {
-        this.ngxService.stop();
-        if (error.error?.message) {
-          this.responseMessage = error.error?.message;
-        } else {
-          this.responseMessage = GlobalConstants.genericError;
-        }
-        this.snackBar.openSnackBar(this.responseMessage, GlobalConstants.error);
-      }
-    );
-  }
-
-  onChange(status: any, id: any) {
-    let data = {
-      status: status.toString(),
-      id,
-    };
-
-    this.productService.updateStatus(data).subscribe(
-      (resp: any) => {
-        this.ngxService.stop();
         this.responseMessage = resp?.message;
         this.snackBar.openSnackBar(this.responseMessage, 'success');
       },
