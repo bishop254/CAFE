@@ -13,9 +13,18 @@ import { SharedModule } from './shared/shared.module';
 import { FullComponent } from './layouts/full/full.component';
 import { AppHeaderComponent } from './layouts/full/header/header.component';
 import { AppSidebarComponent } from './layouts/full/sidebar/sidebar.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { SignupComponent } from './signup/signup.component';
-import { NgxUiLoaderConfig, NgxUiLoaderModule, PB_DIRECTION, SPINNER } from 'ngx-ui-loader';
+import {
+  NgxUiLoaderConfig,
+  NgxUiLoaderModule,
+  PB_DIRECTION,
+  SPINNER,
+} from 'ngx-ui-loader';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { LoginComponent } from './login/login.component';
+import { TokenInterceptorInterceptor } from './services/token-interceptor.interceptor';
+import { AccordionLinkDirective } from './shared/accordion';
 
 const ngx_ui_loader_config: NgxUiLoaderConfig = {
   text: 'Loading...',
@@ -27,7 +36,7 @@ const ngx_ui_loader_config: NgxUiLoaderConfig = {
   fgsType: SPINNER.chasingDots,
   fgsSize: 100,
   pbDirection: PB_DIRECTION.leftToRight,
-  pbThickness: 5
+  pbThickness: 5,
 };
 
 @NgModule({
@@ -39,6 +48,8 @@ const ngx_ui_loader_config: NgxUiLoaderConfig = {
     AppHeaderComponent,
     AppSidebarComponent,
     SignupComponent,
+    ForgotPasswordComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -52,7 +63,15 @@ const ngx_ui_loader_config: NgxUiLoaderConfig = {
     HttpClientModule,
     NgxUiLoaderModule.forRoot(ngx_ui_loader_config),
   ],
-  providers: [],
+  providers: [
+    HttpClientModule,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptorInterceptor,
+      multi: true,
+    },
+    AccordionLinkDirective
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
