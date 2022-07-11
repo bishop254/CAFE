@@ -8,39 +8,28 @@ import { UserService } from '../services/user.service';
 import { GlobalConstants } from '../shared/global-constants';
 
 @Component({
-  selector: 'app-signup',
-  templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.scss'],
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
 })
-export class SignupComponent implements OnInit {
-  signupForm: any = FormGroup;
-  responseMessage!: string;
+export class LoginComponent implements OnInit {
+  loginForm: any = FormGroup;
+  responseMessage: any;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private userService: UserService,
     private snackBar: SnackbarService,
-    private dialogRef: MatDialogRef<SignupComponent>,
+    private dialogRef: MatDialogRef<LoginComponent>,
     private ngxService: NgxUiLoaderService
   ) {}
 
   ngOnInit(): void {
-    this.signupForm = this.fb.group({
-      name: [
-        null,
-        [Validators.required, Validators.pattern(GlobalConstants.nameRegex)],
-      ],
+    this.loginForm = this.fb.group({
       email: [
         null,
         [Validators.required, Validators.pattern(GlobalConstants.emailRegex)],
-      ],
-      contactNumber: [
-        null,
-        [
-          Validators.required,
-          Validators.pattern(GlobalConstants.contactNumberRegex),
-        ],
       ],
       password: [null, [Validators.required, Validators.minLength(7)]],
     });
@@ -48,21 +37,20 @@ export class SignupComponent implements OnInit {
 
   handleSubmit() {
     this.ngxService.start();
-    let formData = this.signupForm.value;
+    let formData = this.loginForm.value;
     var data = {
-      name: formData.name,
       email: formData.email,
-      phone: formData.contactNumber,
       password: formData.password,
     };
 
-    this.userService.signup(data).subscribe(
+    this.userService.login(data).subscribe(
       (resp: any) => {
         this.ngxService.stop();
         this.dialogRef.close();
         this.responseMessage = resp?.message;
+        localStorage.setItem('token', resp?.token)
         this.snackBar.openSnackBar(this.responseMessage, '');
-        this.router.navigate(['/']);
+        this.router.navigate(['/cafe/dashboard']);
       },
       (error) => {
         this.ngxService.stop();

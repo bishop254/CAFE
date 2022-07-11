@@ -26,7 +26,7 @@
 
       <mat-form-field appearance="fill" fxFlex>
         <mat-label>Email</mat-label>
-        <input type="email" matInput formControlName="name" required />
+        <input type="email" matInput formControlName="email" required />
         <mat-error
           *ngIf="
             signupForm.controls.email.touched &&
@@ -44,7 +44,7 @@
 
       <mat-form-field appearance="fill" fxFlex>
         <mat-label>Phone Number</mat-label>
-        <input type="number" matInput formControlName="name" required />
+        <input type="text" matInput formControlName="contactNumber" required />
         <mat-error
           *ngIf="
             signupForm.controls.contactNumber.touched &&
@@ -62,17 +62,14 @@
 
       <mat-form-field appearance="fill" fxFlex>
         <mat-label>Password</mat-label>
-        <input type="password" matInput formControlName="name" required />
+        <input type="password" matInput formControlName="password" required />
         <mat-error
           *ngIf="
             signupForm.controls.password.touched && signupForm.controls.password
           "
         >
-          <span *ngIf="signupForm.controls.password.errors.required"
+          <span *ngIf="signupForm.controls.password.errors"
             >This field is mandatory</span
-          >
-          <span *ngIf="signupForm.controls.password.errors.pattern"
-            >This field is invalid</span
           >
         </mat-error>
       </mat-form-field>
