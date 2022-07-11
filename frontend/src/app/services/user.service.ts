@@ -40,4 +40,12 @@ export class UserService {
       this.jsonHeader
     );
   }
+
+  getUsers() {
+    return this.http.get(`${this.url}/user/get`);
+  }
+
+  update(data: any) {
+    return this.http.patch(`${this.url}/user/update`, data, this.jsonHeader);
+  }
 }

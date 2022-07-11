@@ -110,7 +110,7 @@ router.post("/getPDF", auth.authenticate, (req, res) => {
   }
 });
 
-router.get("/getBIlls", auth.authenticate, (req, res, next) => {
+router.get("/getBills", auth.authenticate, (req, res, next) => {
   let query = "select * from bill order by id DESC";
   connection.query(query, (err, results) => {
     if (!err) {

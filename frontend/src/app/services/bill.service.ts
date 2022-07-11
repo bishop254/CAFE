@@ -27,4 +27,12 @@ export class BillService {
       responseType: 'blob',
     });
   }
+
+  getBills() {
+    return this.http.get(`${this.url}/bill/getBills`);
+  }
+
+  delete(id: any) {
+    return this.http.delete(`${this.url}/bill/delete/${id}`, this.jsonHeader);
+  }
 }
